@@ -23,7 +23,7 @@ import javax.crypto.Cipher
 
 @RestController
 class AuthController(@Autowired private val userSession: UserSessionService) {
-    private val KEY_DIR = "C:\\Users\\85751\\Desktop\\Projects\\SimpleBudgetBackend\\crypt"
+    private val KEY_DIR = "D:\\Projects\\simple-budget-backend\\crypt"
 
     @CrossOrigin
     @GetMapping("/auth/pubkey")

@@ -18,7 +18,7 @@ class TransactionService(@Autowired private val sessionService: UserSessionServi
             for (page in 1..100) {
                 val currTransactions = client.getTransactions(accountId, page)
                 val index = currTransactions.indexOf(currTransactions.find {
-                    if (!it.pending) it.id == lastTransnID else it.transactionDetailsRequest == lastTransnID
+                    it.id == lastTransnID
                 })
                 if (index != -1) {
                     transactions.addAll(currTransactions.subList(0, index))
@@ -26,7 +26,10 @@ class TransactionService(@Autowired private val sessionService: UserSessionServi
                 }
                 transactions.addAll(currTransactions)
             }
-            transactions.forEach { emit(it) }
+            transactions.reversed().forEach {
+                emit(it)
+                delay(1000)
+            }
         } else {
             // Do not emit past transactions if prev transn ID not specified
             transactions.addAll(client.getTransactions(accountId))
@@ -34,14 +37,16 @@ class TransactionService(@Autowired private val sessionService: UserSessionServi
 
         while (true) {
             val transn = client.getTransactions(accountId)
-            val lastId = if (transactions[0].pending) transactions[0].transactionDetailsRequest else transactions[0].id
+            val lastId = transactions[0].id
 
-            if ((transn[0].pending && transn[0].transactionDetailsRequest != lastId)
-                || (!transn[0].pending && transn[0].id != lastId)) {
+            if (transn[0].id != lastId) {
                 val index = transn.indexOf(transn.find {
-                    if (!it.pending) it.id == lastId else it.transactionDetailsRequest == lastId
+                    it.id == lastId
                 })
-                transn.subList(0, index).forEach { emit(it) }
+                transn.subList(0, index).reversed().forEach {
+                    emit(it)
+                    delay(1000)
+                }
                 transactions.addAll(0, transn.subList(0, index))
             }
             delay(5000)

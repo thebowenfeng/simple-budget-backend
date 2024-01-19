@@ -11,8 +11,7 @@ data class Account(
 )
 
 data class Transaction(
-    val id: String?,
-    val transactionDetailsRequest: String?,
+    val id: String,
     val description: String,
     val created: ZonedDateTime,
     val amount: Double,

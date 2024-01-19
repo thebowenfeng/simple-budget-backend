@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.map
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.TEXT_EVENT_STREAM_VALUE
 import org.springframework.http.codec.ServerSentEvent
+import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -18,6 +19,7 @@ class TransactionsController(@Autowired private val transactionService: Transact
     @GetMapping("/")
     suspend fun helloWorld(): String = "Hello world"
 
+    @CrossOrigin
     @GetMapping("/api/transactions", produces=[TEXT_EVENT_STREAM_VALUE])
     fun getTransactions(@RequestParam userId: String, @RequestParam accountId: String, @RequestParam lastId: String?): Flow<ServerSentEvent<Transaction>>
         = transactionService.getTransactions(userId, accountId, lastId).map {

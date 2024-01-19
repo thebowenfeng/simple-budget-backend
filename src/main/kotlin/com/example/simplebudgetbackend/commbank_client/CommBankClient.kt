@@ -10,10 +10,13 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import org.jsoup.Jsoup
 import org.jsoup.select.Elements
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
+import kotlin.collections.HashMap
 
 class CommBankClient private constructor(private val username: String, private val password: String) {
     private val httpClient = HttpClient(CIO) {
@@ -129,10 +132,10 @@ class CommBankClient private constructor(private val username: String, private v
         val resJson = mapper.readTree(res.bodyAsText())
         paging[page + 1] = resJson.get("pagingKey").asText()
 
+        /* Deprecated pending transactions
         val pendingTransactions = if (resJson.has("pendingTransactions")) resJson.get("pendingTransactions").map {
             Transaction(
-                id = null,
-                transactionDetailsRequest = it.get("transactionDetailsRequest").asText(),
+                id = it.get("description").asText(),
                 description = it.get("description").asText(),
                 created = ZonedDateTime.of(LocalDateTime.parse(it.get("createdDate").asText(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")),
                     ZoneId.of("Australia/Sydney")),
@@ -140,17 +143,17 @@ class CommBankClient private constructor(private val username: String, private v
                 pending = true
             )
         } else emptyList()
+         */
+
         val transactions = resJson.get("transactions").map {
             Transaction(
                 id = it.get("transactionId").asText(),
-                transactionDetailsRequest = null,
                 description = it.get("description").asText(),
-                created = ZonedDateTime.of(LocalDateTime.parse(it.get("createdDate").asText(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")),
-                    ZoneId.of("Australia/Sydney")),
+                created = LocalDate.parse("Sat 20 Jan 2024", DateTimeFormatter.ofPattern("EEE dd MMM yyyy", Locale.ENGLISH)).atStartOfDay().atZone(ZoneId.of("Australia/Sydney")),
                 amount = it.get("amount").asDouble(),
                 pending = false
             )
-        } + pendingTransactions
+        }
         transactions.sortedBy {
             it.created
         }
