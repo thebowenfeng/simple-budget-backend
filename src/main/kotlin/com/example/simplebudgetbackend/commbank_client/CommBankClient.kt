@@ -149,7 +149,7 @@ class CommBankClient private constructor(private val username: String, private v
             Transaction(
                 id = it.get("transactionId").asText(),
                 description = it.get("description").asText(),
-                created = LocalDate.parse("Sat 20 Jan 2024", DateTimeFormatter.ofPattern("EEE dd MMM yyyy", Locale.ENGLISH)).atStartOfDay().atZone(ZoneId.of("Australia/Sydney")),
+                created = LocalDate.parse(it.get("purchasedOnDisplay").asText(), DateTimeFormatter.ofPattern("EEE dd MMM yyyy", Locale.ENGLISH)).atStartOfDay().atZone(ZoneId.of("Australia/Sydney")),
                 amount = it.get("amount").asDouble(),
                 pending = false
             )

@@ -21,8 +21,10 @@ class TransactionsController(@Autowired private val transactionService: Transact
 
     @CrossOrigin
     @GetMapping("/api/transactions", produces=[TEXT_EVENT_STREAM_VALUE])
-    fun getTransactions(@RequestParam userId: String, @RequestParam accountId: String, @RequestParam lastId: String?): Flow<ServerSentEvent<Transaction>>
-        = transactionService.getTransactions(userId, accountId, lastId).map {
+    fun getTransactions(@RequestParam userId: String, @RequestParam accountId: String, @RequestParam prevTransnIds: String?): Flow<ServerSentEvent<Transaction>>
+        = transactionService.getTransactions(userId, accountId, parseIdArray(prevTransnIds)).map {
             ServerSentEvent.builder<Transaction>().event("transaction").data(it).build()
         }
+
+    fun parseIdArray(idArray: String?): List<String>? = idArray?.split(",")
 }
